@@ -55,20 +55,22 @@ class SearchFragment : Fragment(), Injectable {
     @Inject
     lateinit var appExecutors: AppExecutors
 
-    var dataBindingComponent: DataBindingComponent = FragmentDataBindingComponent(this)
-
-    var binding by autoCleared<SearchFragmentBinding>()
-
-    var adapter by autoCleared<RepoListAdapter>()
-
     val searchViewModel: SearchViewModel by viewModels {
         viewModelFactory
     }
+
+    // Android Binding
+    var binding by autoCleared<SearchFragmentBinding>()
+    var dataBindingComponent: DataBindingComponent = FragmentDataBindingComponent(this)
+
+    var adapter by autoCleared<RepoListAdapter>() // autoCleared: tự hủy khi fragment hủy
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        // Khởi tạo binding
         binding = DataBindingUtil.inflate(
             inflater,
             R.layout.search_fragment,
@@ -82,6 +84,7 @@ class SearchFragment : Fragment(), Injectable {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.setLifecycleOwner(viewLifecycleOwner)
+
         initRecyclerView()
         val rvAdapter = RepoListAdapter(
             dataBindingComponent = dataBindingComponent,
@@ -135,6 +138,8 @@ class SearchFragment : Fragment(), Injectable {
 
         binding.repoList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+
+                // Tải trang tiếp theo, khi Scroll tới cuối
                 val layoutManager = recyclerView.layoutManager as LinearLayoutManager
                 val lastPosition = layoutManager.findLastVisibleItemPosition()
                 if (lastPosition == adapter.itemCount - 1) {
@@ -142,9 +147,10 @@ class SearchFragment : Fragment(), Injectable {
                 }
             }
         })
+
         binding.searchResult = searchViewModel.results
         searchViewModel.results.observe(viewLifecycleOwner, Observer { result ->
-            adapter.submitList(result?.data)
+            adapter.submitList(result?.data)    // update, đổi list
         })
 
         searchViewModel.loadMoreStatus.observe(viewLifecycleOwner, Observer { loadingMore ->
