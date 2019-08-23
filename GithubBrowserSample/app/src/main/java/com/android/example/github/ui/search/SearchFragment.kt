@@ -49,19 +49,20 @@ import javax.inject.Inject
 @OpenForTesting
 class SearchFragment : Fragment(), Injectable {
 
+    // DI
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
-
     @Inject
     lateinit var appExecutors: AppExecutors
-
-    val searchViewModel: SearchViewModel by viewModels {
-        viewModelFactory
-    }
 
     // Android Binding
     var binding by autoCleared<SearchFragmentBinding>()
     var dataBindingComponent: DataBindingComponent = FragmentDataBindingComponent(this)
+
+
+    val searchViewModel: SearchViewModel by viewModels {
+        viewModelFactory
+    }
 
     var adapter by autoCleared<RepoListAdapter>() // autoCleared: tự hủy khi fragment hủy
 
